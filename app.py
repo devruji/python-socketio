@@ -23,6 +23,11 @@ def connect(sid, environ): #SessionId random(string)
     global b_count
     client_count += 1
 
+    username = environ.get('HTTP_X_USERNAME')
+    print('username:', username)
+    if not username:
+        return False
+
     print(sid, 'connected')
 
     sio.start_background_task(task, sid)

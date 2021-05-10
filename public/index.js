@@ -1,4 +1,12 @@
-const sio = io();
+const sio = io({
+    transportOptions: {
+        polling: {
+            extraHeaders: {
+                'X-Username': window.location.hash.substring(1)
+            }
+        }
+    }
+});
 
 sio.on('connect', () => {
     console.log('connected');
@@ -7,6 +15,10 @@ sio.on('connect', () => {
         console.log(result);
     });
 });
+
+sio.on('connect_error', (e) => {
+    console.log(e.message);
+})
 
 sio.on('disconnect', () => {
     console.log('disconnected');
