@@ -12,3 +12,9 @@ def connect(sid, environ): #SessionId random(string)
 @sio.event
 def disconnect(sid):
     print(sid, 'disconnected')
+
+@sio.event
+def sum(sid, data):
+    result = data['numbers'][0] + data['numbers'][1]
+
+    sio.emit('sum_result', {'result': result}, to=sid)
