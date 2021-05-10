@@ -1,3 +1,4 @@
+import random
 import socketio
 
 sio = socketio.Server()
@@ -6,6 +7,8 @@ app = socketio.WSGIApp(sio, static_files={
 })
 
 client_count = 0
+a_count = 0
+b_count = 0
 
 def task(sid):
     sio.sleep(3)
@@ -16,6 +19,8 @@ def task(sid):
 @sio.event
 def connect(sid, environ): #SessionId random(string)
     global client_count
+    global a_count
+    global b_count
     client_count += 1
 
     print(sid, 'connected')
@@ -23,12 +28,30 @@ def connect(sid, environ): #SessionId random(string)
     sio.start_background_task(task, sid)
     sio.emit('client_count', client_count)
 
+    if random.random() > 0.5:
+        sio.enter_room(sid, 'a')
+        a_count += 1
+        sio.emit('room_count', a_count, to='a')
+    else:
+        sio.enter_room(sid, 'b')
+        b_count += 1
+        sio.emit('room_count', b_count, to='b')
+
 @sio.event
 def disconnect(sid):
     global client_count
+    global a_count
+    global b_count
     client_count -= 1
     print(sid, 'disconnected')
     sio.emit('client_count', client_count)
+
+    if 'a' in sio.rooms(sid):
+        a_count -= 1
+        sio.emit('room_count', a_count, to='a')
+    else:
+        b_count -= 1
+        sio.emit('room_count', b_count, to='b')
 
 @sio.event
 def sum(sid, data):
